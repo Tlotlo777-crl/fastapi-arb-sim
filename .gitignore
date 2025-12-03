@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.DS_Store
+.env
+/trade_log.csv
+/trade_log_*.csv
+/venv
+/env
+/node_modules
+/dist
+/build
+/tmp
+/logs
