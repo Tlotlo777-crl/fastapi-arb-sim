@@ -5,3 +5,8 @@ pandas
 numpy
 colorama
 pydantic
+# --- voice answer assistant ---
+anthropic
+python-multipart
+pypdf
+python-docx
