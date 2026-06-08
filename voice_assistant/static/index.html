@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#efe7d8" />
+  <title>EchoMind — Live Voice Answers</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◎</span>
+      <div>
+        <h1>EchoMind</h1>
+        <p class="tag">Live meeting copilot — hears the call, answers & coaches in real time</p>
+      </div>
+    </div>
+    <div class="status">
+      <span id="wsDot" class="dot" title="Server connection"></span>
+      <span id="aiBadge" class="badge">AI: …</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left: listening + transcript -->
+    <section class="panel listen">
+      <div class="controls">
+        <button id="micBtn" class="mic" aria-label="Start listening">
+          <span class="mic-ico">🎙️</span>
+          <span id="micLabel">Start listening</span>
+        </button>
+
+        <div class="seg-row">
+          <div class="seg" id="modeSeg" title="Response engine">
+            <button data-mode="agent" class="active">⚡ Super Agent</button>
+            <button data-mode="fast">🚀 Ultra Fast</button>
+          </div>
+          <div class="seg" id="styleSeg" title="What the copilot does">
+            <button data-style="answer" class="active">Answer</button>
+            <button data-style="coach">Coach</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <select id="lang" title="Recognition language">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="es-ES">Español</option>
+            <option value="fr-FR">Français</option>
+            <option value="de-DE">Deutsch</option>
+            <option value="pt-BR">Português (BR)</option>
+            <option value="hi-IN">हिन्दी</option>
+            <option value="zh-CN">中文 (普通话)</option>
+            <option value="ar-SA">العربية</option>
+            <option value="sw-KE">Kiswahili</option>
+          </select>
+          <label class="auto"><input type="checkbox" id="autoAnswer" checked /> Auto</label>
+        </div>
+
+        <div>
+          <div class="field-label" style="margin-bottom:7px;">Who's talking</div>
+          <div class="speakers" id="speakers">
+            <button class="spk active" data-spk="Me">🙋 Me</button>
+            <button class="spk" data-spk="Them">🗣 Them</button>
+            <button class="spk spk-add" id="addSpeaker">＋ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="transcript-wrap">
+        <h2 style="margin-top:16px;">Heard</h2>
+        <div id="transcript" class="transcript">
+          <p class="hint">Press <strong>Start listening</strong> and speak. Tap a
+          speaker before they talk so the copilot knows who said what.</p>
+        </div>
+        <p id="interim" class="interim"></p>
+      </div>
+
+      <form id="askForm" class="ask">
+        <input id="askInput" type="text" placeholder="Or type a question…" autocomplete="off" />
+        <button type="submit">Ask</button>
+      </form>
+    </section>
+
+    <!-- Center: answers feed -->
+    <section class="panel answers">
+      <h2>Live Suggestions</h2>
+      <div id="answers" class="answer-feed">
+        <p class="hint">Answers and coaching suggestions appear here the moment
+        something is said.</p>
+      </div>
+    </section>
+
+    <!-- Right: documents -->
+    <aside class="panel docs">
+      <h2>Knowledge</h2>
+      <label id="drop" class="drop">
+        <input type="file" id="fileInput" multiple
+               accept=".pdf,.docx,.txt,.md,.csv,.json,.html,.rtf" hidden />
+        <span class="drop-ico">＋</span>
+        <span>Upload documents</span>
+        <small>Bible, CV, proposal, notes — PDF / DOCX / TXT / MD</small>
+      </label>
+      <ul id="docList" class="doc-list"></ul>
+    </aside>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
