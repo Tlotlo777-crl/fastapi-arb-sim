@@ -24,6 +24,16 @@ It runs as a single web app, so the **same URL works on your PC and your phone**
 - **Speech recognition happens in the browser** (Web Speech API). It's free,
   real-time, and supported by Chrome/Edge on desktop and Android. **No audio
   leaves your device — only the recognized text is sent** to the backend.
+- **Two engines, switchable live:**
+  - **⚡ Super Agent** — Claude **Opus 4.8**, the most capable answers.
+  - **🚀 Ultra Fast** — Claude **Haiku 4.5**, lowest latency.
+- **Two styles:**
+  - **Answer** — directly answers the question that was asked.
+  - **Coach** — suggests *how to better ask or answer* in the conversation
+    (a sharp question to ask, or a polished way to reply).
+- **Speaker tracking** — tap **Me / Them** (or add named speakers) before
+  someone talks; the copilot tags each line and adapts its suggestion to who
+  is speaking.
 - **Documents are "learned"** by extracting their text, splitting it into
   passages, and indexing them. For each spoken question, the most relevant
   passages are retrieved and given to Claude so answers are grounded in *your*
@@ -54,12 +64,13 @@ and shows the source.
 
 ### Configuration
 
-| Env var             | Default            | Purpose                                   |
-| ------------------- | ------------------ | ----------------------------------------- |
-| `ANTHROPIC_API_KEY` | —                  | Enables Claude answers                     |
-| `VOICE_MODEL`       | `claude-opus-4-8`  | Claude model id (e.g. `claude-haiku-4-5` for lower latency) |
-| `VOICE_DATA_DIR`    | `voice_data`       | Where uploaded documents persist           |
-| `PORT`              | `8000`             | Port to bind                               |
+| Env var              | Default            | Purpose                                   |
+| -------------------- | ------------------ | ----------------------------------------- |
+| `ANTHROPIC_API_KEY`  | —                  | Enables Claude answers                     |
+| `VOICE_AGENT_MODEL`  | `claude-opus-4-8`  | "Super Agent" engine                       |
+| `VOICE_FAST_MODEL`   | `claude-haiku-4-5` | "Ultra Fast" engine                        |
+| `VOICE_DATA_DIR`     | `voice_data`       | Where uploaded documents persist           |
+| `PORT`               | `8000`             | Port to bind                               |
 
 ---
 
@@ -94,6 +105,27 @@ works on each device, and answers appear on whichever device is listening.
 > every connected screen.
 
 ---
+
+## Using it in a Google Meet / Zoom call
+
+1. Pick your engine (**⚡ Super Agent** for depth, **🚀 Ultra Fast** for speed)
+   and style (**Answer** or **Coach**).
+2. Tap the **speaker** (Me / Them, or add names) before each person talks.
+3. Click **Start listening**. As the conversation flows, answers and coaching
+   lines stream in instantly.
+
+**Hearing the other participants.** Browser speech recognition uses your
+**microphone**, so it naturally hears whoever your mic picks up (you, plus
+anyone in the room on speakerphone). To transcribe *remote* participants on the
+same machine, route your system/Meet audio into the mic input (e.g. a loopback
+device such as "Stereo Mix" on Windows, BlackHole/Loopback on macOS, or
+PulseAudio monitor on Linux) and select that as the default input.
+
+**"Know who's talking."** Browser speech recognition does not do automatic
+speaker diarization, so EchoMind uses **fast manual speaker tagging** — one tap
+to set the active speaker, which then labels the transcript and tailors the
+copilot's suggestion (answer *their* question vs. help *you* respond). This is
+the practical, reliable approach without sending audio to a server.
 
 ## Files
 

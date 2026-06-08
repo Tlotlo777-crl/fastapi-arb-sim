@@ -87,7 +87,7 @@ def _startup() -> None:
 def status() -> dict:
     return {
         "ai_enabled": llm.available(),
-        "model": llm.MODEL if llm.available() else None,
+        "models": llm.MODELS,
         "documents": store.list_documents(),
     }
 
@@ -125,12 +125,15 @@ def delete_document(doc_id: str) -> dict:
 
 @app.post("/api/ask")
 async def ask(payload: dict) -> JSONResponse:
-    question = (payload or {}).get("question", "").strip()
+    payload = payload or {}
+    question = payload.get("question", "").strip()
     if not question:
         return JSONResponse({"error": "Missing 'question'."}, status_code=400)
-    hits = store.search(question, k=4)
+    mode = payload.get("mode", "agent")
+    style = payload.get("style", "answer")
+    hits = store.search(question, k=3)
     parts: list[str] = []
-    async for delta in llm.stream_answer(question, hits):
+    async for delta in llm.stream_answer(question, hits, mode=mode, style=style):
         parts.append(delta)
     return JSONResponse(
         {
@@ -148,24 +151,31 @@ async def websocket_endpoint(ws: WebSocket) -> None:
     await ws.accept()
     current: asyncio.Task | None = None
 
-    async def answer(question: str, force: bool) -> None:
+    async def answer(question: str, force: bool, opts: dict) -> None:
         if not force and not _looks_answerable(question):
             return
+        mode = opts.get("mode", "agent")
+        style = opts.get("style", "answer")
+        speaker = opts.get("speaker")
         answer_id = uuid.uuid4().hex[:8]
-        hits = store.search(question, k=4)
+        hits = store.search(question, k=3)
         try:
             await ws.send_json(
                 {
                     "type": "answer_start",
                     "id": answer_id,
                     "question": question,
+                    "style": style,
+                    "speaker": speaker,
                     "sources": [
                         {"name": h.chunk.doc_name, "score": round(h.score, 3)}
                         for h in hits
                     ],
                 }
             )
-            async for delta in llm.stream_answer(question, hits):
+            async for delta in llm.stream_answer(
+                question, hits, mode=mode, style=style, speaker=speaker
+            ):
                 await ws.send_json(
                     {"type": "answer_delta", "id": answer_id, "text": delta}
                 )
@@ -193,10 +203,15 @@ async def websocket_endpoint(ws: WebSocket) -> None:
                 if not text:
                     continue
                 force = msg.get("type") == "ask"
+                opts = {
+                    "mode": msg.get("mode", "agent"),
+                    "style": msg.get("style", "answer"),
+                    "speaker": msg.get("speaker"),
+                }
                 # A new utterance supersedes the previous in-flight answer.
                 if current and not current.done():
                     current.cancel()
-                current = asyncio.create_task(answer(text, force))
+                current = asyncio.create_task(answer(text, force, opts))
     except WebSocketDisconnect:
         if current and not current.done():
             current.cancel()

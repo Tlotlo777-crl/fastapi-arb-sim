@@ -14,6 +14,8 @@
     answers: $("answers"),
     askForm: $("askForm"), askInput: $("askInput"),
     drop: $("drop"), fileInput: $("fileInput"), docList: $("docList"),
+    modeSeg: $("modeSeg"), styleSeg: $("styleSeg"),
+    speakers: $("speakers"), addSpeaker: $("addSpeaker"),
   };
 
   let ws = null;
@@ -21,6 +23,9 @@
   let listening = false;
   let manualStop = false;
   const cards = new Map(); // answer id -> { aEl }
+
+  // copilot state
+  const state = { mode: "agent", style: "answer", speaker: "Me" };
 
   // ---- toast -------------------------------------------------------------
   let toastTimer = null;
@@ -68,11 +73,14 @@
 
   function startCard(msg) {
     clearHint(els.answers);
+    const isCoach = msg.style === "coach";
     const card = document.createElement("div");
-    card.className = "answer-card";
+    card.className = "answer-card" + (isCoach ? " coach" : "");
     const q = document.createElement("div");
     q.className = "q";
-    q.textContent = "“" + msg.question + "”";
+    const label = isCoach ? "Suggest" : "Q";
+    const who = msg.speaker ? msg.speaker + ": " : "";
+    q.innerHTML = `<span class="label">${label}</span>${who ? escapeHtml(who) : ""}“${escapeHtml(msg.question)}”`;
     const a = document.createElement("div");
     a.className = "a";
     a.innerHTML = '<span class="cursor">▍</span>';
@@ -112,13 +120,21 @@
   }
 
   // ---- transcript --------------------------------------------------------
-  function addHeard(text) {
+  function addHeard(text, speaker) {
     clearHint(els.transcript);
     const line = document.createElement("div");
     line.className = "line";
-    line.textContent = text;
+    const who = speaker ? `<span class="who">${escapeHtml(speaker)}</span>` : "";
+    line.innerHTML = who + escapeHtml(text);
     els.transcript.appendChild(line);
     els.transcript.scrollTop = els.transcript.scrollHeight;
+  }
+
+  function payloadBase(extra) {
+    return Object.assign(
+      { mode: state.mode, style: state.style, speaker: state.speaker },
+      extra
+    );
   }
 
   // ---- speech recognition ------------------------------------------------
@@ -137,9 +153,10 @@
         const text = res[0].transcript.trim();
         if (res.isFinal) {
           if (text) {
-            addHeard(text);
+            addHeard(text, state.speaker);
             // Only ask the server for an answer when auto-answer is on.
-            if (els.autoAnswer.checked) send({ type: "transcript", text });
+            if (els.autoAnswer.checked)
+              send(payloadBase({ type: "transcript", text }));
           }
         } else {
           interim += text + " ";
@@ -200,8 +217,8 @@
     e.preventDefault();
     const q = els.askInput.value.trim();
     if (!q) return;
-    addHeard(q);
-    send({ type: "ask", text: q });
+    addHeard(q, state.speaker);
+    send(payloadBase({ type: "ask", text: q }));
     els.askInput.value = "";
   });
 
@@ -275,13 +292,45 @@
     if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
   });
 
+  // ---- segmented controls & speakers ------------------------------------
+  function wireSeg(seg, key) {
+    seg.addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      state[key] = btn.dataset[key];
+      [...seg.children].forEach((b) => b.classList.toggle("active", b === btn));
+    });
+  }
+  wireSeg(els.modeSeg, "mode");
+  wireSeg(els.styleSeg, "style");
+
+  els.speakers.addEventListener("click", (e) => {
+    const btn = e.target.closest(".spk");
+    if (!btn || btn.id === "addSpeaker") return;
+    state.speaker = btn.dataset.spk;
+    els.speakers.querySelectorAll(".spk").forEach((b) =>
+      b.classList.toggle("active", b === btn)
+    );
+  });
+  els.addSpeaker.addEventListener("click", () => {
+    const name = (prompt("Speaker name (e.g. Sarah, Client)") || "").trim();
+    if (!name) return;
+    const btn = document.createElement("button");
+    btn.className = "spk";
+    btn.dataset.spk = name;
+    btn.textContent = name;
+    els.speakers.insertBefore(btn, els.addSpeaker);
+    btn.click();
+  });
+
   // ---- status ------------------------------------------------------------
   async function loadStatus() {
     try {
       const r = await fetch("/api/status");
       const s = await r.json();
       if (s.ai_enabled) {
-        els.aiBadge.textContent = "AI: " + (s.model || "on");
+        const m = s.models || {};
+        els.aiBadge.textContent = `⚡ ${m.agent || "Opus"} · 🚀 ${m.fast || "Haiku"}`;
         els.aiBadge.className = "badge ok";
       } else {
         els.aiBadge.textContent = "AI: set ANTHROPIC_API_KEY";

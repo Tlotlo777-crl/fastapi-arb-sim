@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta name="theme-color" content="#0b0f1a" />
+  <meta name="theme-color" content="#efe7d8" />
   <title>EchoMind — Live Voice Answers</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
@@ -13,7 +13,7 @@
       <span class="logo">◎</span>
       <div>
         <h1>EchoMind</h1>
-        <p class="tag">Live voice → instant answers, grounded in your documents</p>
+        <p class="tag">Live meeting copilot — hears the call, answers & coaches in real time</p>
       </div>
     </div>
     <div class="status">
@@ -30,29 +30,49 @@
           <span class="mic-ico">🎙️</span>
           <span id="micLabel">Start listening</span>
         </button>
-        <select id="lang" title="Recognition language">
-          <option value="en-US">English (US)</option>
-          <option value="en-GB">English (UK)</option>
-          <option value="es-ES">Español</option>
-          <option value="fr-FR">Français</option>
-          <option value="de-DE">Deutsch</option>
-          <option value="pt-BR">Português (BR)</option>
-          <option value="hi-IN">हिन्दी</option>
-          <option value="zh-CN">中文 (普通话)</option>
-          <option value="ar-SA">العربية</option>
-          <option value="sw-KE">Kiswahili</option>
-        </select>
-        <label class="auto">
-          <input type="checkbox" id="autoAnswer" checked />
-          Auto-answer
-        </label>
+
+        <div class="seg-row">
+          <div class="seg" id="modeSeg" title="Response engine">
+            <button data-mode="agent" class="active">⚡ Super Agent</button>
+            <button data-mode="fast">🚀 Ultra Fast</button>
+          </div>
+          <div class="seg" id="styleSeg" title="What the copilot does">
+            <button data-style="answer" class="active">Answer</button>
+            <button data-style="coach">Coach</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <select id="lang" title="Recognition language">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="es-ES">Español</option>
+            <option value="fr-FR">Français</option>
+            <option value="de-DE">Deutsch</option>
+            <option value="pt-BR">Português (BR)</option>
+            <option value="hi-IN">हिन्दी</option>
+            <option value="zh-CN">中文 (普通话)</option>
+            <option value="ar-SA">العربية</option>
+            <option value="sw-KE">Kiswahili</option>
+          </select>
+          <label class="auto"><input type="checkbox" id="autoAnswer" checked /> Auto</label>
+        </div>
+
+        <div>
+          <div class="field-label" style="margin-bottom:7px;">Who's talking</div>
+          <div class="speakers" id="speakers">
+            <button class="spk active" data-spk="Me">🙋 Me</button>
+            <button class="spk" data-spk="Them">🗣 Them</button>
+            <button class="spk spk-add" id="addSpeaker">＋ Add</button>
+          </div>
+        </div>
       </div>
 
       <div class="transcript-wrap">
-        <h2>Heard</h2>
+        <h2 style="margin-top:16px;">Heard</h2>
         <div id="transcript" class="transcript">
-          <p class="hint">Press <strong>Start listening</strong> and speak. Whatever
-          is heard appears here; questions get answered automatically.</p>
+          <p class="hint">Press <strong>Start listening</strong> and speak. Tap a
+          speaker before they talk so the copilot knows who said what.</p>
         </div>
         <p id="interim" class="interim"></p>
       </div>
@@ -65,9 +85,10 @@
 
     <!-- Center: answers feed -->
     <section class="panel answers">
-      <h2>Answers</h2>
+      <h2>Live Suggestions</h2>
       <div id="answers" class="answer-feed">
-        <p class="hint">Answers appear here the moment a question is detected.</p>
+        <p class="hint">Answers and coaching suggestions appear here the moment
+        something is said.</p>
       </div>
     </section>
 
