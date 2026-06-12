@@ -1,11 +1,13 @@
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import asyncio
+import os
 from simulator import ExchangeSimulator
 from arb_engine import ArbitrageEngine
 from config import SystemConfig
 import pandas as pd
-import os
 
 # Global State
 state = {
@@ -15,7 +17,14 @@ state = {
     "tasks": []
 }
 
-app = FastAPI(title="Latency Arb Bot API")
+app = FastAPI(title="TswanaFuel | Latency Arb Bot API")
+
+# ── Serve TswanaFuel website ───────────────────────────────────────────────
+_website_dir = os.path.join(os.path.dirname(__file__), "website")
+
+@app.get("/", include_in_schema=False)
+async def serve_website():
+    return FileResponse(os.path.join(_website_dir, "index.html"))
 
 @app.post("/start")
 async def start_system(config: SystemConfig, background_tasks: BackgroundTasks):

@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TswanaFuel | Preferred Energy Supplier in the SADC Region</title>
+  <meta name="description" content="TswanaFuel – Botswana's leading fuel supplier. 8 operational sites, 2 million litres storage capacity, 24/7 service across the SADC region. Retail, Bulk Supply, Truck Stops & Roadside Assistance." />
+  <meta property="og:title" content="TswanaFuel | Preferred Energy Supplier" />
+  <meta property="og:description" content="Reliable, environmentally sustainable energy solutions across Botswana and the SADC region." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.lsb-tswanafuel.com" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js -->
+  <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:   { DEFAULT: '#0a1f44', 800: '#0e2755', 700: '#122f66', 600: '#1a3a6b' },
+            fuel:   { DEFAULT: '#f97316', light: '#fdba74', dark: '#c2410c' },
+            slate2: { DEFAULT: '#f0f4f8' }
+          },
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    html { font-family: 'Inter', system-ui, sans-serif; }
+
+    /* ── Nav ── */
+    .nav-link {
+      position: relative;
+      padding-bottom: 2px;
+      transition: color .2s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -2px;
+      width: 0; height: 2px;
+      background: #f97316;
+      transition: width .25s;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    /* ── Hero ── */
+    .hero-bg {
+      background: linear-gradient(135deg, #0a1f44 0%, #1a3a6b 45%, #0f2a50 100%);
+    }
+    .hero-pattern {
+      background-image: radial-gradient(circle at 20% 80%, rgba(249,115,22,.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(30,64,175,.3) 0%, transparent 50%),
+                        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* ── Stat counter ── */
+    .stat-card {
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    /* ── Service cards ── */
+    .service-card {
+      transition: transform .3s, box-shadow .3s;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(10,31,68,.15);
+    }
+    .service-icon-ring {
+      background: linear-gradient(135deg, #f97316, #c2410c);
+    }
+
+    /* ── Location cards ── */
+    .location-card {
+      transition: all .25s;
+      border-left: 4px solid transparent;
+    }
+    .location-card:hover, .location-card.active {
+      border-left-color: #f97316;
+      background: #fff7ed;
+    }
+
+    /* ── Section title underline ── */
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 60px; height: 4px;
+      background: linear-gradient(90deg, #f97316, #fdba74);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+
+    /* ── Value cards ── */
+    .value-card {
+      border-top: 4px solid #f97316;
+    }
+
+    /* ── Scroll fade-in ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Map ── */
+    #map { height: 420px; border-radius: 12px; z-index: 0; }
+
+    /* ── Contact form ── */
+    .form-input {
+      width: 100%;
+      padding: .625rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: .5rem;
+      background: #f9fafb;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px rgba(249,115,22,.15);
+      background: #fff;
+    }
+
+    /* ── Mobile menu ── */
+    .mobile-menu { transition: max-height .3s ease, opacity .3s ease; }
+
+    /* ── Ribbon ── */
+    .ticker-wrap {
+      overflow: hidden;
+      background: #f97316;
+    }
+    .ticker {
+      display: flex;
+      animation: ticker-scroll 30s linear infinite;
+      white-space: nowrap;
+    }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* leaflet override */
+    .leaflet-popup-content-wrapper { border-radius: 8px !important; }
+  </style>
+</head>
+
+<body class="bg-white text-gray-800 antialiased" x-data="{ mobileOpen: false }">
+
+<!-- ═══════════════════════════════════════════════
+     TICKER RIBBON
+═══════════════════════════════════════════════ -->
+<div class="ticker-wrap py-1.5 text-white text-xs font-semibold tracking-wide hidden md:block">
+  <div class="ticker">
+    <span class="mx-8">⛽ NEVER RUN DRY IN OUR HISTORY OF TRADING FUEL IN BOTSWANA</span>
+    <span class="mx-8">📍 8 OPERATIONAL SITES ACROSS BOTSWANA</span>
+    <span class="mx-8">🛢️ 2 MILLION LITRES TOTAL STORAGE CAPACITY</span>
+    <span class="mx-8">🚛 24/7 BULK FUEL DELIVERY AVAILABLE</span>
+    <span class="mx-8">📞 CEO: +267 76 552 333</span>
+    <span class="mx-8">⛽ NEVER RUN DRY IN OUR HISTORY OF TRADING FUEL IN BOTSWANA</span>
+    <span class="mx-8">📍 8 OPERATIONAL SITES ACROSS BOTSWANA</span>
+    <span class="mx-8">🛢️ 2 MILLION LITRES TOTAL STORAGE CAPACITY</span>
+    <span class="mx-8">🚛 24/7 BULK FUEL DELIVERY AVAILABLE</span>
+    <span class="mx-8">📞 CEO: +267 76 552 333</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     NAVIGATION
+═══════════════════════════════════════════════ -->
+<nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100" x-data="{ scrolled: false }" @scroll.window="scrolled = window.scrollY > 50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Logo -->
+      <a href="#home" class="flex items-center gap-3 flex-shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-navy to-blue-700 flex items-center justify-center shadow-md">
+          <i class="fas fa-gas-pump text-fuel text-lg"></i>
+        </div>
+        <div>
+          <div class="font-black text-navy text-lg leading-tight tracking-tight">TswanaFuel</div>
+          <div class="text-xs text-gray-400 leading-tight font-medium -mt-0.5">LSB Group of Companies</div>
+        </div>
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden lg:flex items-center gap-7">
+        <a href="#about"     class="nav-link text-sm font-semibold text-gray-600 hover:text-navy">About</a>
+        <a href="#services"  class="nav-link text-sm font-semibold text-gray-600 hover:text-navy">Services</a>
+        <a href="#network"   class="nav-link text-sm font-semibold text-gray-600 hover:text-navy">Our Network</a>
+        <a href="#growth"    class="nav-link text-sm font-semibold text-gray-600 hover:text-navy">Performance</a>
+        <a href="#contact"   class="nav-link text-sm font-semibold text-gray-600 hover:text-navy">Contact</a>
+        <a href="#contact" class="bg-fuel hover:bg-fuel-dark text-white text-sm font-bold px-5 py-2 rounded-full transition-colors shadow-md shadow-orange-200">
+          Get a Quote
+        </a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100" @click="mobileOpen = !mobileOpen">
+        <i class="fas fa-bars text-xl" x-show="!mobileOpen"></i>
+        <i class="fas fa-times text-xl" x-show="mobileOpen"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="lg:hidden mobile-menu overflow-hidden" :class="mobileOpen ? 'max-h-96 opacity-100 pb-4' : 'max-h-0 opacity-0'">
+      <div class="flex flex-col gap-1 pt-2">
+        <a href="#about"    class="px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50" @click="mobileOpen=false">About</a>
+        <a href="#services" class="px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50" @click="mobileOpen=false">Services</a>
+        <a href="#network"  class="px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50" @click="mobileOpen=false">Our Network</a>
+        <a href="#growth"   class="px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50" @click="mobileOpen=false">Performance</a>
+        <a href="#contact"  class="px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50" @click="mobileOpen=false">Contact</a>
+        <a href="#contact"  class="mt-2 bg-fuel text-white text-sm font-bold px-5 py-2.5 rounded-full text-center" @click="mobileOpen=false">Get a Quote</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════ -->
+<section id="home" class="hero-bg hero-pattern relative overflow-hidden min-h-screen flex items-center">
+  <!-- Decorative circles -->
+  <div class="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-fuel/10 blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 -left-24 w-72 h-72 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 w-full">
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+      <!-- Left: text -->
+      <div>
+        <div class="inline-flex items-center gap-2 bg-fuel/20 border border-fuel/30 text-fuel text-xs font-bold px-4 py-1.5 rounded-full mb-6">
+          <span class="w-2 h-2 rounded-full bg-fuel animate-pulse"></span>
+          EST. 2011 · LSB GROUP OF COMPANIES
+        </div>
+
+        <h1 class="text-5xl sm:text-6xl font-black text-white leading-tight mb-6">
+          Botswana's<br/>
+          <span class="text-fuel">Preferred</span><br/>
+          Energy Partner
+        </h1>
+
+        <p class="text-blue-200 text-lg leading-relaxed mb-8 max-w-md">
+          Providing environmentally sustainable energy solutions across 8 strategic sites in Botswana.
+          We have <strong class="text-white">never run dry</strong> in our entire trading history.
+        </p>
+
+        <div class="flex flex-wrap gap-4 mb-12">
+          <a href="#services" class="bg-fuel hover:bg-fuel-dark text-white font-bold px-7 py-3.5 rounded-full transition-all shadow-lg shadow-orange-900/30 hover:-translate-y-0.5">
+            Explore Services
+          </a>
+          <a href="#contact" class="border-2 border-white/30 hover:border-fuel text-white font-bold px-7 py-3.5 rounded-full transition-all hover:-translate-y-0.5">
+            Request a Quote
+          </a>
+        </div>
+
+        <!-- Mini badges -->
+        <div class="flex flex-wrap gap-3">
+          <span class="flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+            <i class="fas fa-shield-halved text-fuel"></i> SHEQ Certified
+          </span>
+          <span class="flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+            <i class="fas fa-clock text-fuel"></i> 24/7 Operations
+          </span>
+          <span class="flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-lg">
+            <i class="fas fa-leaf text-fuel"></i> Sustainable Energy
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: stat cards grid -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="stat-card rounded-2xl p-6 text-center">
+          <div class="text-4xl font-black text-fuel mb-1" data-count="2">0</div>
+          <div class="text-white text-sm font-semibold">Million Litres<br/>Total Storage</div>
+        </div>
+        <div class="stat-card rounded-2xl p-6 text-center">
+          <div class="text-4xl font-black text-fuel mb-1" data-count="8">0</div>
+          <div class="text-white text-sm font-semibold">Operational<br/>Sites</div>
+        </div>
+        <div class="stat-card rounded-2xl p-6 text-center">
+          <div class="text-4xl font-black text-fuel mb-1" data-count="25">0</div>
+          <div class="text-white text-sm font-semibold">Years Group<br/>Experience</div>
+        </div>
+        <div class="stat-card rounded-2xl p-6 text-center">
+          <div class="text-4xl font-black text-fuel mb-1" data-count="24">0</div>
+          <div class="text-white text-sm font-semibold">Hour Operations<br/>Available</div>
+        </div>
+
+        <!-- Full-width card -->
+        <div class="stat-card rounded-2xl p-5 col-span-2 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-fuel/20 flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-trophy text-fuel text-xl"></i>
+          </div>
+          <div>
+            <div class="text-white font-bold">Zero Supply Interruptions</div>
+            <div class="text-blue-200 text-sm">Never run dry in our entire trading history since 2011</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+    <span class="text-white/40 text-xs font-semibold tracking-widest">SCROLL</span>
+    <i class="fas fa-chevron-down text-white/40 text-sm"></i>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     ABOUT
+═══════════════════════════════════════════════ -->
+<section id="about" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <!-- Left: image-style card -->
+      <div class="relative">
+        <div class="bg-gradient-to-br from-navy to-blue-700 rounded-3xl p-10 text-white relative overflow-hidden">
+          <div class="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-fuel/20 blur-2xl"></div>
+          <div class="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-blue-400/20 blur-2xl"></div>
+
+          <div class="relative">
+            <div class="w-14 h-14 rounded-2xl bg-fuel flex items-center justify-center mb-6 shadow-lg">
+              <i class="fas fa-gas-pump text-white text-2xl"></i>
+            </div>
+            <h3 class="text-3xl font-black mb-4 leading-tight">Majority<br/>Botswana Owned</h3>
+            <p class="text-blue-200 leading-relaxed mb-6">
+              TswanaFuel is a proudly Botswana company established in 2011, part of the LSB Group of Companies with origins dating back 25 years.
+            </p>
+            <blockquote class="border-l-4 border-fuel pl-4 italic text-blue-100">
+              "We have never run dry in our history of trading fuel in Botswana."
+            </blockquote>
+
+            <div class="grid grid-cols-2 gap-4 mt-8">
+              <div class="bg-white/10 rounded-xl p-4 text-center">
+                <div class="text-2xl font-black text-fuel">2011</div>
+                <div class="text-xs text-blue-200 mt-1">Year Established</div>
+              </div>
+              <div class="bg-white/10 rounded-xl p-4 text-center">
+                <div class="text-2xl font-black text-fuel">SADC</div>
+                <div class="text-xs text-blue-200 mt-1">Regional Reach</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: content -->
+      <div>
+        <div class="text-fuel font-bold text-sm tracking-widest uppercase mb-3">Who We Are</div>
+        <h2 class="text-4xl font-black text-navy mb-6 leading-tight section-title text-left">
+          Powering Botswana's Growth
+        </h2>
+        <div class="section-title" style="margin: 0 0 24px 0;"></div>
+
+        <p class="text-gray-600 leading-relaxed mb-6">
+          We continuously invest in the required storage, transport infrastructure and experienced manpower to serve our customers across Botswana and the SADC region.
+        </p>
+        <p class="text-gray-600 leading-relaxed mb-8">
+          We promote the support of Botswana-owned businesses and are in partnership with various locally owned entities. We always look for new opportunities to partner with Botswana citizens in developing businesses in the fuel sector.
+        </p>
+
+        <!-- Core values grid -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="value-card bg-gray-50 rounded-xl p-5">
+            <i class="fas fa-recycle text-fuel text-xl mb-3 block"></i>
+            <h4 class="font-bold text-navy mb-1">Sustainability</h4>
+            <p class="text-sm text-gray-500">Committed to environmentally responsible energy solutions.</p>
+          </div>
+          <div class="value-card bg-gray-50 rounded-xl p-5">
+            <i class="fas fa-users text-fuel text-xl mb-3 block"></i>
+            <h4 class="font-bold text-navy mb-1">Customer Centric</h4>
+            <p class="text-sm text-gray-500">Simplicity and ease of business in all our actions.</p>
+          </div>
+          <div class="value-card bg-gray-50 rounded-xl p-5">
+            <i class="fas fa-shield-halved text-fuel text-xl mb-3 block"></i>
+            <h4 class="font-bold text-navy mb-1">SHEQ Standards</h4>
+            <p class="text-sm text-gray-500">Highest standards in Safety, Health, Environment & Quality.</p>
+          </div>
+          <div class="value-card bg-gray-50 rounded-xl p-5">
+            <i class="fas fa-handshake text-fuel text-xl mb-3 block"></i>
+            <h4 class="font-bold text-navy mb-1">Responsible Citizen</h4>
+            <p class="text-sm text-gray-500">Upholding the highest standards of corporate citizenship.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mission / Vision banner -->
+    <div class="mt-20 grid md:grid-cols-2 gap-6">
+      <div class="bg-navy rounded-2xl p-8 flex items-start gap-5">
+        <div class="w-12 h-12 rounded-xl bg-fuel flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-bullseye text-white text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-white mb-2">Our Mission</h3>
+          <p class="text-blue-200 leading-relaxed">To provide environmentally sustainable energy solutions that power communities and businesses across the SADC region.</p>
+        </div>
+      </div>
+      <div class="bg-fuel rounded-2xl p-8 flex items-start gap-5">
+        <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-eye text-white text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-white mb-2">Our Vision</h3>
+          <p class="text-orange-100 leading-relaxed">To be the preferred energy supplier in the SADC region — reliable, sustainable, and always ready.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     SERVICES
+═══════════════════════════════════════════════ -->
+<section id="services" class="py-24 bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-16">
+      <div class="text-fuel font-bold text-sm tracking-widest uppercase mb-3">What We Offer</div>
+      <h2 class="text-4xl font-black text-navy mb-4">Our Services</h2>
+      <div class="w-16 h-1.5 bg-gradient-to-r from-fuel to-orange-300 rounded-full mx-auto mb-4"></div>
+      <p class="text-gray-500 max-w-xl mx-auto">We aim to provide simple and effective solutions — from retail fuel to integrated logistics management.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Retail Sites -->
+      <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="service-icon-ring w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-orange-200">
+          <i class="fas fa-gas-pump text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-navy mb-3">Retail Sites</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          ENGEN-branded retail fuel stations at Mmamashia, Nkoyaphiri and Molepolole — independently managed and fully serviced.
+        </p>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> ENGEN Brand Partnership</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Multiple Nozzle Configurations</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Diesel &amp; ULP95 Available</li>
+        </ul>
+      </div>
+
+      <!-- Truck Stop -->
+      <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="service-icon-ring w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-orange-200">
+          <i class="fas fa-truck text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-navy mb-3">Truck Stop Facilities</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          Best-in-class truck stop facilities designed for long-haul drivers — strategically located near border posts.
+        </p>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> 24-Hour Security &amp; CCTV</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Free Wi-Fi (150m radius)</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Border Permits &amp; Toll Fees</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Secure Parking &amp; Ablutions</li>
+        </ul>
+      </div>
+
+      <!-- Roadside Assistance -->
+      <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="service-icon-ring w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-orange-200">
+          <i class="fas fa-wrench text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-navy mb-3">Roadside Assistance</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          You Call. We Assist. We act as an extension of your fleet department — resolving issues quickly and efficiently.
+        </p>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> 24/7 Emergency Number</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Tyre Services &amp; Pressure Testing</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Breakdown &amp; Accident Co-ordination</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Cargo Handling</li>
+        </ul>
+      </div>
+
+      <!-- Bulk Fuel -->
+      <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="service-icon-ring w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-orange-200">
+          <i class="fas fa-barrel text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-navy mb-3">Bulk Fuel Supply</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          With our own fleet of metered &amp; calibrated tankers we offer reliable 24/7 bulk delivery — direct bridging to customer sites.
+        </p>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> BDF, CTO &amp; Botswana Railways</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Free SHEQ Training Included</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Fuel Management Software Setup</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> IOT Remote Monitoring Devices</li>
+        </ul>
+      </div>
+
+      <!-- Software Solutions -->
+      <div class="service-card bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="service-icon-ring w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-lg shadow-orange-200">
+          <i class="fas fa-laptop-code text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-navy mb-3">Integrated Software Solutions</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">
+          Real-time visibility of all TswanaFuel related transactions. Our proprietary platform puts you in full control.
+        </p>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> 100% Transaction Visibility</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Stock Level SMS Alerts</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Remote IOT Monitoring</li>
+          <li class="flex items-center gap-2"><i class="fas fa-check text-fuel text-xs"></i> Implementation &amp; Training</li>
+        </ul>
+      </div>
+
+      <!-- Loyalty Cards -->
+      <div class="service-card bg-navy rounded-2xl p-7 shadow-sm border border-navy relative overflow-hidden">
+        <div class="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-fuel/20 blur-xl"></div>
+        <div class="relative">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-5">
+            <i class="fas fa-credit-card text-fuel text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-black text-white mb-3">Loyalty Cards</h3>
+          <p class="text-blue-200 text-sm leading-relaxed mb-4">
+            Reward your fleet with TswanaFuel Loyalty Cards — track spending, earn benefits, and simplify fuel management across all sites.
+          </p>
+          <a href="#contact" class="inline-flex items-center gap-2 bg-fuel text-white font-bold text-sm px-5 py-2.5 rounded-full hover:bg-fuel-dark transition-colors">
+            Enquire Now <i class="fas fa-arrow-right text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     NETWORK / LOCATIONS
+═══════════════════════════════════════════════ -->
+<section id="network" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-16">
+      <div class="text-fuel font-bold text-sm tracking-widest uppercase mb-3">Across Botswana</div>
+      <h2 class="text-4xl font-black text-navy mb-4">Our Network</h2>
+      <div class="w-16 h-1.5 bg-gradient-to-r from-fuel to-orange-300 rounded-full mx-auto mb-4"></div>
+      <p class="text-gray-500 max-w-xl mx-auto">
+        All sites are strategically located close to border posts — offering the most cost-effective fuel options in the SADC region.
+        Total storage: <strong class="text-navy">2 million litres</strong> across all sites.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-8 items-start">
+
+      <!-- Location list (2/5) -->
+      <div class="lg:col-span-2 space-y-3" id="location-list">
+
+        <div class="location-card active rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-24.628" data-lng="25.923" data-name="Gaborone (Block 3)" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Gaborone</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Block 3 · Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>415,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>6x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-24.653" data-lng="25.975" data-name="Tlokweng" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Tlokweng</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>664,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>8x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-25.227" data-lng="25.667" data-name="Lobatse" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Lobatse</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>480,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>8x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-21.170" data-lng="27.507" data-name="Francistown" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Francistown</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>92,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>4x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-21.765" data-lng="27.467" data-name="Sherwood" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Sherwood</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>332,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>10x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-21.694" data-lng="21.648" data-name="Ghanzi" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Ghanzi</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>138,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>6x D50 + 8x ULP95</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-22.183" data-lng="19.917" data-name="Mamuno" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Mamuno</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>184,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>6x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-17.792" data-lng="25.270" data-name="Kazungula" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Kazungula</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Established &amp; Operational</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Live</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>500,000 L</span>
+            <span><i class="fas fa-plug text-fuel mr-1"></i>8x Nozzles D50</span>
+          </div>
+        </div>
+
+        <div class="location-card rounded-xl p-4 cursor-pointer bg-white border border-gray-100 shadow-sm" data-lat="-22.553" data-lng="27.132" data-name="Palapye (Coming Soon)" onclick="focusLocation(this)">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-bold text-navy">Palapye</h4>
+              <p class="text-xs text-gray-400 mt-0.5">Coming Soon</p>
+            </div>
+            <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">Soon</span>
+          </div>
+          <div class="flex gap-4 mt-3 text-xs text-gray-500">
+            <span><i class="fas fa-database text-fuel mr-1"></i>158,000 L</span>
+            <span><i class="fas fa-plug text-gray-400 mr-1"></i>Planned</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Map (3/5) -->
+      <div class="lg:col-span-3">
+        <div id="map" class="shadow-xl"></div>
+        <p class="text-xs text-gray-400 mt-2 text-center">Click any site card to zoom in on the map</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     GROWTH / PERFORMANCE
+═══════════════════════════════════════════════ -->
+<section id="growth" class="py-24 bg-navy relative overflow-hidden">
+  <div class="absolute inset-0 hero-pattern opacity-40"></div>
+  <div class="absolute top-0 right-0 w-96 h-96 bg-fuel/10 rounded-full blur-3xl"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+
+    <div class="text-center mb-16">
+      <div class="text-fuel font-bold text-sm tracking-widest uppercase mb-3">Year on Year</div>
+      <h2 class="text-4xl font-black text-white mb-4">Financial Performance</h2>
+      <div class="w-16 h-1.5 bg-gradient-to-r from-fuel to-orange-300 rounded-full mx-auto mb-4"></div>
+      <p class="text-blue-200 max-w-xl mx-auto">Consistent growth from BWP 588M (2020) to BWP 2.1B (2024) — demonstrating our commitment to excellence and expansion.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8 items-center">
+
+      <!-- Chart -->
+      <div class="lg:col-span-2 bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10">
+        <canvas id="growthChart" height="280"></canvas>
+      </div>
+
+      <!-- Growth milestones -->
+      <div class="space-y-4">
+        <div class="bg-white/10 backdrop-blur rounded-xl p-5 border border-white/10">
+          <div class="text-blue-200 text-xs font-bold uppercase mb-1">2024 Turnover</div>
+          <div class="text-3xl font-black text-fuel">BWP 2.1B</div>
+          <div class="flex items-center gap-2 mt-2 text-sm text-green-400 font-semibold">
+            <i class="fas fa-arrow-up text-xs"></i> 257% growth since 2020
+          </div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl p-5 border border-white/10">
+          <div class="text-blue-200 text-xs font-bold uppercase mb-1">Key Tenders</div>
+          <div class="space-y-2 mt-2">
+            <div class="flex items-center gap-2 text-white text-sm"><i class="fas fa-check-circle text-fuel text-xs"></i> Botswana Defence Force (BDF)</div>
+            <div class="flex items-center gap-2 text-white text-sm"><i class="fas fa-check-circle text-fuel text-xs"></i> CTO</div>
+            <div class="flex items-center gap-2 text-white text-sm"><i class="fas fa-check-circle text-fuel text-xs"></i> Botswana Railways</div>
+          </div>
+        </div>
+        <div class="bg-white/10 backdrop-blur rounded-xl p-5 border border-white/10">
+          <div class="text-blue-200 text-xs font-bold uppercase mb-1">Storage Capacity</div>
+          <div class="text-3xl font-black text-white">2M <span class="text-lg font-semibold text-blue-200">litres</span></div>
+          <div class="text-sm text-blue-200 mt-1">Across 8 operational sites</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════════════════ -->
+<section class="py-20 bg-slate-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <div class="text-fuel font-bold text-sm tracking-widest uppercase mb-3">Client Voices</div>
+      <h2 class="text-4xl font-black text-navy mb-4">What Our Clients Say</h2>
+      <div class="w-16 h-1.5 bg-gradient-to-r from-fuel to-orange-300 rounded-full mx-auto"></div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="flex gap-1 mb-4">
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+        </div>
+        <p class="text-gray-600 italic leading-relaxed mb-5">"The facilities are always clean and well maintained. The team at TswanaFuel goes above and beyond for their clients."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-navy flex items-center justify-center text-white font-bold text-sm">TL</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Transport Logistics Client</div>
+            <div class="text-xs text-gray-400">Cross-border Freight</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="flex gap-1 mb-4">
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+        </div>
+        <p class="text-gray-600 italic leading-relaxed mb-5">"Excellent service quality and the roadside assistance team is incredibly responsive. Our fleet has never been left stranded."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-fuel flex items-center justify-center text-white font-bold text-sm">FM</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Fleet Manager</div>
+            <div class="text-xs text-gray-400">Mining Sector</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-7 shadow-sm border border-gray-100">
+        <div class="flex gap-1 mb-4">
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+          <i class="fas fa-star text-fuel text-sm"></i>
+        </div>
+        <p class="text-gray-600 italic leading-relaxed mb-5">"Their bulk supply reliability is unmatched. The integrated software gives us full visibility of every transaction."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold text-sm">PC</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Procurement Officer</div>
+            <div class="text-xs text-gray-400">Government Entity</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     CONTACT
+═══════════════════════════════════════════════ -->
+<section id="contact" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <div class="text-center mb-16">
+      <div class="text-fuel font-bold text-sm tracking-widest uppercase mb-3">Get In Touch</div>
+      <h2 class="text-4xl font-black text-navy mb-4">Contact Us</h2>
+      <div class="w-16 h-1.5 bg-gradient-to-r from-fuel to-orange-300 rounded-full mx-auto mb-4"></div>
+      <p class="text-gray-500 max-w-xl mx-auto">Whether it's a bulk fuel inquiry, a service request, or a partnership opportunity — we're ready to help.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-12">
+
+      <!-- Contact form (3/5) -->
+      <div class="lg:col-span-3">
+        <form id="contactForm" class="bg-slate-50 rounded-2xl p-8 border border-gray-100" onsubmit="handleForm(event)">
+          <h3 class="text-xl font-black text-navy mb-6">Send Us a Message</h3>
+
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-600 mb-1.5">Full Name *</label>
+              <input type="text" required placeholder="Your name" class="form-input" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-600 mb-1.5">Company</label>
+              <input type="text" placeholder="Company name" class="form-input" />
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-600 mb-1.5">Email *</label>
+              <input type="email" required placeholder="your@email.com" class="form-input" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-600 mb-1.5">Phone</label>
+              <input type="tel" placeholder="+267 ..." class="form-input" />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-gray-600 mb-1.5">Service of Interest</label>
+            <select class="form-input">
+              <option value="">Select a service...</option>
+              <option>Bulk Fuel Supply</option>
+              <option>Retail Site</option>
+              <option>Truck Stop Facilities</option>
+              <option>Roadside Assistance</option>
+              <option>Integrated Software Solutions</option>
+              <option>Loyalty Cards</option>
+              <option>Partnership / Other</option>
+            </select>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-600 mb-1.5">Message *</label>
+            <textarea required rows="4" placeholder="Tell us about your fuel needs..." class="form-input resize-none"></textarea>
+          </div>
+
+          <button type="submit" class="w-full bg-fuel hover:bg-fuel-dark text-white font-bold py-3.5 rounded-xl transition-colors shadow-lg shadow-orange-200">
+            Send Message <i class="fas fa-paper-plane ml-2"></i>
+          </button>
+          <p id="formSuccess" class="hidden mt-4 text-center text-green-600 font-semibold text-sm">
+            <i class="fas fa-check-circle mr-1"></i> Message sent! We'll be in touch shortly.
+          </p>
+        </form>
+      </div>
+
+      <!-- Contact directory (2/5) -->
+      <div class="lg:col-span-2 space-y-4">
+        <h3 class="text-xl font-black text-navy mb-6">Our Leadership Team</h3>
+
+        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-gray-100">
+          <div class="w-10 h-10 rounded-full bg-navy flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AS</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Anzsar Seyed</div>
+            <div class="text-xs text-fuel font-semibold">Managing Director</div>
+            <a href="mailto:anzsar.oculus@lsb.co.bw" class="text-xs text-gray-500 hover:text-fuel mt-0.5 block">anzsar.oculus@lsb.co.bw</a>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-gray-100">
+          <div class="w-10 h-10 rounded-full bg-fuel flex items-center justify-center text-white text-xs font-bold flex-shrink-0">DN</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Dickson Nyepi</div>
+            <div class="text-xs text-fuel font-semibold">Chief Executive Officer</div>
+            <a href="tel:+26776552333" class="text-xs text-gray-500 hover:text-fuel block">+267 76 552 333</a>
+            <a href="mailto:dickson.tswanafuel@lsb.co.bw" class="text-xs text-gray-500 hover:text-fuel block">dickson.tswanafuel@lsb.co.bw</a>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-gray-100">
+          <div class="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">MN</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Mosimanegape Ntopo</div>
+            <div class="text-xs text-fuel font-semibold">Commercial &amp; Trading Manager</div>
+            <a href="tel:+26777966827" class="text-xs text-gray-500 hover:text-fuel block">+267 77 966 827</a>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-gray-100">
+          <div class="w-10 h-10 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">GR</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Godfrey Ratlhaga</div>
+            <div class="text-xs text-fuel font-semibold">Operations Manager</div>
+            <a href="tel:+26775419411" class="text-xs text-gray-500 hover:text-fuel block">+267 75 419 411</a>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-xl border border-gray-100">
+          <div class="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">LM</div>
+          <div>
+            <div class="font-bold text-navy text-sm">Larry Mogobye</div>
+            <div class="text-xs text-fuel font-semibold">Business Development Manager</div>
+            <a href="tel:+26777891812" class="text-xs text-gray-500 hover:text-fuel block">+267 77 891 812</a>
+          </div>
+        </div>
+
+        <!-- Social links -->
+        <div class="pt-4 border-t border-gray-100">
+          <p class="text-xs text-gray-400 font-semibold uppercase mb-3">Follow Us</p>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 rounded-full bg-blue-700 flex items-center justify-center text-white hover:bg-blue-800 transition-colors">
+              <i class="fab fa-facebook-f text-sm"></i>
+            </a>
+            <a href="#" class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
+              <i class="fab fa-linkedin-in text-sm"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<footer class="bg-navy text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <div class="grid md:grid-cols-4 gap-8 mb-12">
+
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-9 h-9 rounded-lg bg-fuel flex items-center justify-center">
+            <i class="fas fa-gas-pump text-white"></i>
+          </div>
+          <div>
+            <div class="font-black text-lg">TswanaFuel</div>
+            <div class="text-xs text-blue-300">LSB Group of Companies</div>
+          </div>
+        </div>
+        <p class="text-blue-200 text-sm leading-relaxed max-w-xs">
+          Botswana's preferred energy supplier since 2011. Delivering reliable, sustainable fuel solutions across the SADC region.
+        </p>
+        <p class="text-blue-300 text-xs mt-4 italic">"We have never run dry in our history of trading fuel in Botswana."</p>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-sm uppercase tracking-wider text-blue-300 mb-4">Services</h4>
+        <ul class="space-y-2 text-sm text-blue-200">
+          <li><a href="#services" class="hover:text-fuel transition-colors">Retail Sites</a></li>
+          <li><a href="#services" class="hover:text-fuel transition-colors">Truck Stop Facilities</a></li>
+          <li><a href="#services" class="hover:text-fuel transition-colors">Bulk Fuel Supply</a></li>
+          <li><a href="#services" class="hover:text-fuel transition-colors">Roadside Assistance</a></li>
+          <li><a href="#services" class="hover:text-fuel transition-colors">Software Solutions</a></li>
+          <li><a href="#services" class="hover:text-fuel transition-colors">Loyalty Cards</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-bold text-sm uppercase tracking-wider text-blue-300 mb-4">Company</h4>
+        <ul class="space-y-2 text-sm text-blue-200">
+          <li><a href="#about"   class="hover:text-fuel transition-colors">About TswanaFuel</a></li>
+          <li><a href="#network" class="hover:text-fuel transition-colors">Our Network</a></li>
+          <li><a href="#growth"  class="hover:text-fuel transition-colors">Performance</a></li>
+          <li><a href="#contact" class="hover:text-fuel transition-colors">Contact Us</a></li>
+          <li><a href="https://www.lsb-tswanafuel.com" class="hover:text-fuel transition-colors">Website</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-blue-300">
+      <span>&copy; 2026 TswanaFuel (Pty) Ltd · LSB Group of Companies · All rights reserved.</span>
+      <span>Registered in Botswana · <a href="https://www.lsb-tswanafuel.com" class="hover:text-fuel">www.lsb-tswanafuel.com</a></span>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+// ── Animated counter ──────────────────────────
+function animateCounters() {
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count, 10);
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current + (target >= 1000000 ? 'M' : '+');
+      if (current >= target) {
+        el.textContent = target + (el.closest('.stat-card') ? (target === 2 ? 'M+' : '+') : '');
+        clearInterval(timer);
+      }
+    }, 40);
+  });
+}
+
+// ── Intersection Observer for fade-in ──────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── Counter trigger on hero visible ────────────
+const heroObs = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) { animateCounters(); heroObs.disconnect(); }
+}, { threshold: 0.3 });
+heroObs.observe(document.querySelector('.hero-bg'));
+
+// ── Leaflet Map ────────────────────────────────
+const sites = [
+  { name: 'Gaborone (Block 3)',  lat: -24.628, lng: 25.923, cap: '415,000 L', status: 'Operational' },
+  { name: 'Tlokweng',            lat: -24.653, lng: 25.975, cap: '664,000 L', status: 'Operational' },
+  { name: 'Lobatse',             lat: -25.227, lng: 25.667, cap: '480,000 L', status: 'Operational' },
+  { name: 'Francistown',         lat: -21.170, lng: 27.507, cap: '92,000 L',  status: 'Operational' },
+  { name: 'Sherwood',            lat: -21.765, lng: 27.467, cap: '332,000 L', status: 'Operational' },
+  { name: 'Ghanzi',              lat: -21.694, lng: 21.648, cap: '138,000 L', status: 'Operational' },
+  { name: 'Mamuno',              lat: -22.183, lng: 19.917, cap: '184,000 L', status: 'Operational' },
+  { name: 'Kazungula',           lat: -17.792, lng: 25.270, cap: '500,000 L', status: 'Operational' },
+  { name: 'Palapye',             lat: -22.553, lng: 27.132, cap: '158,000 L', status: 'Coming Soon' },
+];
+
+const map = L.map('map').setView([-22.5, 24.5], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+const fuelIcon = L.divIcon({
+  html: `<div style="background:#f97316;width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">
+           <span style="transform:rotate(45deg);color:white;font-size:12px;">⛽</span>
+         </div>`,
+  iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -34],
+  className: ''
+});
+
+const soonIcon = L.divIcon({
+  html: `<div style="background:#f59e0b;width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">
+           <span style="transform:rotate(45deg);color:white;font-size:12px;">📍</span>
+         </div>`,
+  iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -34],
+  className: ''
+});
+
+const markers = {};
+sites.forEach(s => {
+  const icon = s.status === 'Operational' ? fuelIcon : soonIcon;
+  const m = L.marker([s.lat, s.lng], { icon }).addTo(map);
+  m.bindPopup(`
+    <div style="min-width:160px;font-family:Inter,sans-serif;">
+      <strong style="color:#0a1f44;font-size:14px;">${s.name}</strong><br/>
+      <span style="color:${s.status==='Operational'?'#16a34a':'#d97706'};font-size:11px;font-weight:700;">${s.status}</span><br/>
+      <span style="color:#6b7280;font-size:12px;margin-top:4px;display:block;">📦 Capacity: ${s.cap}</span>
+    </div>
+  `);
+  markers[s.name] = m;
+});
+
+function focusLocation(card) {
+  document.querySelectorAll('.location-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  const lat = parseFloat(card.dataset.lat);
+  const lng = parseFloat(card.dataset.lng);
+  const name = card.dataset.name;
+  map.flyTo([lat, lng], 10, { duration: 1 });
+  if (markers[name]) markers[name].openPopup();
+}
+
+// ── Chart.js growth chart ──────────────────────
+const ctx = document.getElementById('growthChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['2020', '2021', '2022', '2023', '2024'],
+    datasets: [{
+      label: 'Turnover (BWP Millions)',
+      data: [588, 820, 1100, 1650, 2100],
+      backgroundColor: [
+        'rgba(249,115,22,.6)',
+        'rgba(249,115,22,.7)',
+        'rgba(249,115,22,.8)',
+        'rgba(249,115,22,.9)',
+        'rgba(249,115,22,1)',
+      ],
+      borderColor: '#f97316',
+      borderWidth: 2,
+      borderRadius: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: '#e2e8f0', font: { family: 'Inter', weight: 600 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` BWP ${ctx.parsed.y}M`
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,.05)' } },
+      y: {
+        ticks: { color: '#94a3b8', callback: v => `BWP ${v}M` },
+        grid: { color: 'rgba(255,255,255,.05)' }
+      }
+    }
+  }
+});
+
+// ── Contact form handler ───────────────────────
+function handleForm(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type=submit]');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Send Message';
+    btn.disabled = false;
+    document.getElementById('formSuccess').classList.remove('hidden');
+    e.target.reset();
+    setTimeout(() => document.getElementById('formSuccess').classList.add('hidden'), 5000);
+  }, 1200);
+}
+
+// ── Scroll-based nav highlight ─────────────────
+const sections = document.querySelectorAll('section[id]');
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 80;
+  sections.forEach(s => {
+    const top = s.offsetTop, bottom = top + s.offsetHeight;
+    const link = document.querySelector(`a[href="#${s.id}"]`);
+    if (link && scrollY >= top && scrollY < bottom) {
+      link.style.color = '#f97316';
+    } else if (link) {
+      link.style.color = '';
+    }
+  });
+}, { passive: true });
+</script>
+
+</body>
+</html>
